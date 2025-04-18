@@ -17,6 +17,13 @@
         "esp_lcd_ili9341.h": "c",
         "chrono": "c",
         "span": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "esp_lcd_panel_vendor.h": "c",
+        "esp_lcd_panel_st7789.h": "c",
+        "esp_lcd_panel_ssd1306.h": "c",
+        "esp_lcd_panel_nt35510.h": "c",
+        "esp_lcd_panel_dev.h": "c",
+        "spi_master.h": "c",
+        "esp_lcd_panel_ops.h": "c"
     }
 }

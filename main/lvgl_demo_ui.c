@@ -28,7 +28,12 @@ static void set_angle(void * obj, int32_t v)
 void example_lvgl_demo_ui(lv_display_t *disp)
 {
     lv_obj_t *scr = lv_display_get_screen_active(disp);
+    lv_obj_set_style_bg_color(scr,lv_palette_lighten(LV_PALETTE_BLUE,3),0);
     lv_obj_clear_flag(scr,LV_OBJ_FLAG_SCROLLABLE);
+
+    // lv_obj_t* label=lv_label_create(scr);
+    // lv_obj_center(label);
+    // lv_label_set_text(label,"gc9107 driver lvgl test");
 
     btn = lv_button_create(scr);
     lv_obj_t * lbl = lv_label_create(btn);

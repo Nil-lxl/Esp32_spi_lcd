@@ -5,9 +5,8 @@
 extern "C"{
 #endif
 
-#if CONFIG_EXAMPLE_LCD_CONTROLLER_ILI9341
-#include "esp_lcd_ili9341.h"
-#elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
+
+#if CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
 #include "esp_lcd_gc9a01.h"
 #elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
 #include "esp_lcd_gc9107.h"

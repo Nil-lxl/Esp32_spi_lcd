@@ -9,16 +9,6 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 0.5.3
-  espressif/esp_io_expander:
-    component_hash: fbc0de4082fc7c207dc98a93a0ed83d1a929a4ecee83cc567afb406f3ee6d4a6
-    dependencies:
-    - name: idf
-      require: private
-      version: '>=4.4.2'
-    source:
-      registry_url: https://components.espressif.com
-      type: service
-    version: 1.0.1
   espressif/esp_lcd_gc9a01:
     component_hash: 2ccbdfa5a1762c7a8be66770b69a256d809651d6069098852d2c829648707b5b
     dependencies:
@@ -33,24 +23,6 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.2.0
-  espressif/esp_lcd_panel_io_additions:
-    component_hash: 971ea3198d773311e986c0135aad903873f42f2286e464b0dcdb668d57e8a19b
-    dependencies:
-    - name: idf
-      require: private
-      version: '>=4.4.2'
-    - name: espressif/esp_io_expander
-      registry_url: https://components.espressif.com
-      require: public
-      version: ^1
-    - name: espressif/cmake_utilities
-      registry_url: https://components.espressif.com
-      require: private
-      version: 0.*
-    source:
-      registry_url: https://components.espressif.com/
-      type: service
-    version: 1.0.0
   idf:
     source:
       type: idf
@@ -64,8 +36,7 @@ dependencies:
     version: 9.2.0
 direct_dependencies:
 - espressif/esp_lcd_gc9a01
-- espressif/esp_lcd_panel_io_additions
 - lvgl/lvgl
-manifest_hash: ee9d0beb05d8a06fbc1031b4f4144cd69c40481f856f0c130322de5032e17a96
+manifest_hash: d8e369280a63013dd86b8521bdf532707da243070979b1bdfc61abf7c0cb7b4f
 target: esp32s3
 version: 2.0.0

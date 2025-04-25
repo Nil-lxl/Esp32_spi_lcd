@@ -145,6 +145,9 @@ void app_main(void)
 #elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
     ESP_LOGI(TAG, "Install GC9107 panel driver");
     ESP_ERROR_CHECK(esp_lcd_new_panel_gc9107(io_handle, &panel_config, &panel_handle));
+#elif CONFIG_EXAMPLE_LCD_H020A05
+    ESP_LOGI(TAG, "Install H020A05 panel driver");
+    ESP_ERROR_CHECK(esp_lcd_new_panel_h020a05(io_handle, &panel_config, &panel_handle));
 #endif
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));

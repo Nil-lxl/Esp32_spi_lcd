@@ -10,6 +10,8 @@ extern "C"{
 #include "esp_lcd_gc9a01.h"
 #elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
 #include "esp_lcd_gc9107.h"
+#elif CONFIG_EXAMPLE_LCD_H020A05
+#include "lcd_h020a05.h"
 #endif
 
 static const char *TAG = "example";
@@ -42,6 +44,9 @@ static const char *TAG = "example";
 #elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
 #define EXAMPLE_LCD_H_RES              128
 #define EXAMPLE_LCD_V_RES              128
+#elif CONFIG_EXAMPLE_LCD_H020A05
+#define EXAMPLE_LCD_H_RES              170
+#define EXAMPLE_LCD_V_RES              320
 #endif
 // Bit number used to represent command and parameter
 #define EXAMPLE_LCD_CMD_BITS           8

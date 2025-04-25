@@ -14,6 +14,9 @@ menu "Example Configuration"
 
         config EXAMPLE_LCD_CONTROLLER_GC9107
             bool "GC9107"
+            
+        config EXAMPLE_LCD_H020A05
+            bool "H020A05"    
     endchoice
 
 endmenu

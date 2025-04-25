@@ -10,6 +10,8 @@ extern "C"{
 #include "esp_lcd_gc9a01.h"
 #elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
 #include "esp_lcd_gc9107.h"
+#elif CONFIG_EXAMPLE_LCD_H035A11
+#include "lcd_h035a11.h"
 #endif
 
 static const char *TAG = "example";
@@ -23,12 +25,12 @@ static const char *TAG = "example";
 #define EXAMPLE_LCD_PIXEL_CLOCK_HZ     (20 * 1000 * 1000)
 #define EXAMPLE_LCD_BK_LIGHT_ON_LEVEL  1
 #define EXAMPLE_LCD_BK_LIGHT_OFF_LEVEL !EXAMPLE_LCD_BK_LIGHT_ON_LEVEL
-#define EXAMPLE_PIN_NUM_SCLK           12
-#define EXAMPLE_PIN_NUM_MOSI           13
+#define EXAMPLE_PIN_NUM_SCLK           6
+#define EXAMPLE_PIN_NUM_MOSI           7
 #define EXAMPLE_PIN_NUM_MISO           -1
-#define EXAMPLE_PIN_NUM_LCD_DC         10
-#define EXAMPLE_PIN_NUM_LCD_RST        14
-#define EXAMPLE_PIN_NUM_LCD_CS         11
+#define EXAMPLE_PIN_NUM_LCD_DC         8
+#define EXAMPLE_PIN_NUM_LCD_RST        9
+#define EXAMPLE_PIN_NUM_LCD_CS         10
 // #define EXAMPLE_PIN_NUM_BK_LIGHT       2
 // #define EXAMPLE_PIN_NUM_TOUCH_CS       15
 
@@ -42,6 +44,9 @@ static const char *TAG = "example";
 #elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
 #define EXAMPLE_LCD_H_RES              128
 #define EXAMPLE_LCD_V_RES              128
+#elif CONFIG_EXAMPLE_LCD_H035A11
+#define EXAMPLE_LCD_H_RES              320
+#define EXAMPLE_LCD_V_RES              480
 #endif
 // Bit number used to represent command and parameter
 #define EXAMPLE_LCD_CMD_BITS           8

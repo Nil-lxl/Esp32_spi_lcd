@@ -38,5 +38,5 @@ direct_dependencies:
 - espressif/esp_lcd_gc9a01
 - lvgl/lvgl
 manifest_hash: d8e369280a63013dd86b8521bdf532707da243070979b1bdfc61abf7c0cb7b4f
-target: esp32s3
+target: esp32c3
 version: 2.0.0

@@ -101,6 +101,9 @@ static void example_lvgl_port_task(void *arg)
 
 void app_main(void)
 {
+    gpio_reset_pin(GPIO_NUM_5);
+    gpio_set_direction(GPIO_NUM_5,GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_5,1);
     // ESP_LOGI(TAG, "Turn off LCD backlight");
     // gpio_config_t bk_gpio_config = {
     //     .mode = GPIO_MODE_OUTPUT,
@@ -145,6 +148,9 @@ void app_main(void)
 #elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
     ESP_LOGI(TAG, "Install GC9107 panel driver");
     ESP_ERROR_CHECK(esp_lcd_new_panel_gc9107(io_handle, &panel_config, &panel_handle));
+#elif CONFIG_EXAMPLE_LCD_H035A11
+    ESP_LOGI(TAG, "Install H035A11 panel");
+    ESP_ERROR_CHECK(esp_lcd_new_panel_h035a11(io_handle, &panel_config, &panel_handle));
 #endif
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));

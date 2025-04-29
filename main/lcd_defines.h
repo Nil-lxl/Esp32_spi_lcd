@@ -56,7 +56,7 @@ static const char *TAG = "example";
 #define EXAMPLE_LVGL_TICK_PERIOD_MS    2
 #define EXAMPLE_LVGL_TASK_MAX_DELAY_MS 500
 #define EXAMPLE_LVGL_TASK_MIN_DELAY_MS 1
-#define EXAMPLE_LVGL_TASK_STACK_SIZE   (4 * 1024)
+#define EXAMPLE_LVGL_TASK_STACK_SIZE   (12 * 1024)
 #define EXAMPLE_LVGL_TASK_PRIORITY     2
 
 #ifdef __cplusplus

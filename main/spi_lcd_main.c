@@ -175,11 +175,14 @@ void app_main(void)
 
     // alloc draw buffers used by LVGL
     // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
-    size_t draw_buffer_sz = EXAMPLE_LCD_H_RES * EXAMPLE_LVGL_DRAW_BUF_LINES * sizeof(lv_color16_t);
+    size_t draw_buffer_sz = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES/10 * sizeof(lv_color16_t);
 
-    void *buf1 = spi_bus_dma_memory_alloc(LCD_HOST, draw_buffer_sz, 0);
+    void *buf1 =NULL;
+    void *buf2 =NULL;
+    buf1 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_32BIT);
+    buf2 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_32BIT);
+
     assert(buf1);
-    void *buf2 = spi_bus_dma_memory_alloc(LCD_HOST, draw_buffer_sz, 0);
     assert(buf2);
     // initialize LVGL draw buffers
     lv_display_set_buffers(display, buf1, buf2, draw_buffer_sz, LV_DISPLAY_RENDER_MODE_PARTIAL);
@@ -190,7 +193,7 @@ void app_main(void)
     // set the callback which can copy the rendered image to an area of the display
     lv_display_set_flush_cb(display, example_lvgl_flush_cb);
     // set display rotation
-    lv_display_set_rotation(display,LV_DISP_ROTATION_180);
+    // lv_display_set_rotation(display,LV_DISP_ROTATION_180);
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
     // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)

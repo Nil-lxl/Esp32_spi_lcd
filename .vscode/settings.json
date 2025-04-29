@@ -5,7 +5,7 @@
     "idf.openOcdConfigs": [
         "board/esp32s3-builtin.cfg"
     ],
-    "idf.portWin": "COM20",
+    "idf.portWin": "COM21",
     "idf.toolsPathWin": "d:\\DevTools\\Espressif\\tools",
     "idf.customExtraVars": {
         "OPENOCD_SCRIPTS": "d:\\DevTools\\Espressif\\tools\\tools\\openocd-esp32\\v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
@@ -25,6 +25,11 @@
         "esp_lcd_panel_dev.h": "c",
         "spi_master.h": "c",
         "esp_lcd_panel_ops.h": "c",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "esp_log.h": "c",
+        "gpio.h": "c",
+        "esp_lcd_panel_io.h": "c",
+        "lvgl.h": "c",
+        "lcd_h020a05.h": "c"
     }
 }

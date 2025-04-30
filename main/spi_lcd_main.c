@@ -147,9 +147,6 @@ void app_main(void)
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
-    // ESP_LOGI(TAG, "Turn on LCD backlight");
-    // gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);
-
     /********************************************************
      *                  LVGL INITIALIZATION
      ********************************************************/
@@ -160,9 +157,11 @@ void app_main(void)
     // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
     size_t draw_buffer_sz = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES/10 * sizeof(lv_color16_t);
 
-    void *buf1 = spi_bus_dma_memory_alloc(LCD_HOST, draw_buffer_sz, 0);
+    void *buf1 = heap_caps_malloc(draw_buffer_sz,MALLOC_CAP_SPIRAM);
+    // void *buf1=spi_bus_dma_memory_alloc(LCD_HOST, draw_buffer_sz, 0);
     assert(buf1);
-    void *buf2 = spi_bus_dma_memory_alloc(LCD_HOST, draw_buffer_sz, 0);
+    void *buf2 = heap_caps_malloc(draw_buffer_sz,MALLOC_CAP_SPIRAM);
+    // void *buf2=spi_bus_dma_memory_alloc(LCD_HOST, draw_buffer_sz, 0);
     assert(buf2);
     lv_disp_draw_buf_init(&draw_buf,buf1,buf2,EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES/10);
 
@@ -172,6 +171,7 @@ void app_main(void)
     disp_drv.flush_cb=example_lvgl_flush_cb;
     disp_drv.draw_buf=&draw_buf;
     disp_drv.user_data=panel_handle;
+    disp_drv.full_refresh=1;
 
     lv_disp_t *disp=lv_disp_drv_register(&disp_drv);
 

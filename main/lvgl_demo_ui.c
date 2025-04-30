@@ -30,9 +30,11 @@ static void btn_cb(lv_event_t * e)
 void example_lvgl_demo_ui(lv_disp_t *disp)
 {
     lv_obj_t *scr = lv_disp_get_scr_act(disp);
+    // lv_obj_set_style_bg_color(scr,lv_color_black(),0);
+
     meter = lv_meter_create(scr);
     lv_obj_center(meter);
-    lv_obj_set_size(meter, 200, 200);
+    lv_obj_set_size(meter, 170, 320);
 
     /*Add a scale first*/
     lv_meter_scale_t *scale = lv_meter_add_scale(meter);

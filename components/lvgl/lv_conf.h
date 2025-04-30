@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file lv_conf.h
  * Configuration file for v8.3.9
  */
@@ -46,8 +46,8 @@
  *=========================*/
 
 /*1: use custom malloc/free, 0: use the built-in `lv_mem_alloc()` and `lv_mem_free()`*/
-#define LV_MEM_CUSTOM 1
-#if LV_MEM_CUSTOM == 1
+#define LV_MEM_CUSTOM 1 
+#if LV_MEM_CUSTOM == 0
     /*Size of the memory available for `lv_mem_alloc()` in bytes (>= 2kB)*/
     #define LV_MEM_SIZE (256U * 1024U)          /*[bytes]*/
 
@@ -81,17 +81,17 @@
 #define LV_DISP_DEF_REFR_PERIOD 15      /*[ms]*/
 
 /*Input device read period in milliseconds*/
-#define LV_INDEV_DEF_READ_PERIOD 30     /*[ms]*/
+#define LV_INDEV_DEF_READ_PERIOD 30    /*[ms]*/
 
 /*Use a custom tick source that tells the elapsed time in milliseconds.
  *It removes the need to manually update the tick with `lv_tick_inc()`)*/
 #define LV_TICK_CUSTOM 0
 #if LV_TICK_CUSTOM
-    #define LV_TICK_CUSTOM_INCLUDE "Arduino.h"         /*Header for the system time function*/
-    #define LV_TICK_CUSTOM_SYS_TIME_EXPR (millis())    /*Expression evaluating to current system time in ms*/
+    // #define LV_TICK_CUSTOM_INCLUDE "Arduino.h"         /*Header for the system time function*/
+    // #define LV_TICK_CUSTOM_SYS_TIME_EXPR (millis())    /*Expression evaluating to current system time in ms*/
     /*If using lvgl as ESP32 component*/
-    // #define LV_TICK_CUSTOM_INCLUDE "esp_timer.h"
-    // #define LV_TICK_CUSTOM_SYS_TIME_EXPR ((esp_timer_get_time() / 1000LL))
+    #define LV_TICK_CUSTOM_INCLUDE "esp_timer.h"
+    #define LV_TICK_CUSTOM_SYS_TIME_EXPR ((esp_timer_get_time() / 1000LL))
 #endif   /*LV_TICK_CUSTOM*/
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
@@ -288,7 +288,7 @@
  * Requires LV_MEM_CUSTOM = 0*/
 #define LV_USE_MEM_MONITOR 1
 #if LV_USE_MEM_MONITOR
-    #define LV_USE_MEM_MONITOR_POS LV_ALIGN_BOTTOM_LEFT
+    #define LV_USE_MEM_MONITOR_POS LV_ALIGN_TOP_RIGHT
 #endif
 
 /*1: Draw random colored rectangles over the redrawn areas*/
@@ -650,7 +650,7 @@
 #define LV_USE_SJPG 0
 
 /*GIF decoder library*/
-#define LV_USE_GIF 0
+#define LV_USE_GIF 1
 
 /*QR code library*/
 #define LV_USE_QRCODE 0
@@ -744,7 +744,7 @@
 #define LV_USE_DEMO_KEYPAD_AND_ENCODER 0
 
 /*Benchmark your system*/
-#define LV_USE_DEMO_BENCHMARK 0
+#define LV_USE_DEMO_BENCHMARK 1
 #if LV_USE_DEMO_BENCHMARK
 /*Use RGB565A8 images with 16 bit color depth instead of ARGB8565*/
 #define LV_DEMO_BENCHMARK_RGB565A8 0

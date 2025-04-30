@@ -30,6 +30,7 @@
         "gpio.h": "c",
         "esp_lcd_panel_io.h": "c",
         "lvgl.h": "c",
-        "lcd_h020a05.h": "c"
+        "lcd_h020a05.h": "c",
+        "stdlib.h": "c"
     }
 }

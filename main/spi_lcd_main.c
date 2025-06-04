@@ -101,13 +101,14 @@ static void example_lvgl_port_task(void *arg)
 
 void app_main(void)
 {
-    // ESP_LOGI(TAG, "Turn off LCD backlight");
-    // gpio_config_t bk_gpio_config = {
-    //     .mode = GPIO_MODE_OUTPUT,
-    //     .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT
-    // };
-    // ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
-
+    ESP_LOGI(TAG, "Turn off LCD backlight");
+    gpio_config_t bk_gpio_config = {
+        .mode = GPIO_MODE_OUTPUT,
+        .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT
+    };
+    ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
+    ESP_ERROR_CHECK(gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT,0));
+    
     ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t buscfg = {
         .sclk_io_num = EXAMPLE_PIN_NUM_SCLK,
@@ -148,8 +149,10 @@ void app_main(void)
 #elif CONFIG_EXAMPLE_LCD_H020A05
     ESP_LOGI(TAG, "Install H020A05 panel driver");
     ESP_ERROR_CHECK(esp_lcd_new_panel_h020a05(io_handle, &panel_config, &panel_handle));
+#elif CONFIG_EXAMPLE_LCD_H032A05
+    ESP_LOGI(TAG, "Install H032A05 panel driver");
+    ESP_ERROR_CHECK(esp_lcd_new_panel_h032a05(io_handle, &panel_config, &panel_handle));
 #endif
-
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
 #if CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
@@ -159,9 +162,6 @@ void app_main(void)
 
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
-
-    // ESP_LOGI(TAG, "Turn on LCD backlight");
-    // gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);
 
     /********************************************************
      *                  LVGL INITIALIZATION
@@ -179,9 +179,11 @@ void app_main(void)
 
     void *buf1 =NULL;
     void *buf2 =NULL;
-    buf1 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_32BIT);
-    buf2 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_32BIT);
+    buf1 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_8BIT);
+    buf2 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_8BIT);
 
+    // buf1 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_SPIRAM);
+    // buf2 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_SPIRAM);
     assert(buf1);
     assert(buf2);
     // initialize LVGL draw buffers
@@ -193,7 +195,6 @@ void app_main(void)
     // set the callback which can copy the rendered image to an area of the display
     lv_display_set_flush_cb(display, example_lvgl_flush_cb);
     // set display rotation
-    // lv_display_set_rotation(display,LV_DISP_ROTATION_180);
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
     // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
@@ -220,4 +221,7 @@ void app_main(void)
     _lock_acquire(&lvgl_api_lock);
     example_lvgl_demo_ui(display);
     _lock_release(&lvgl_api_lock);
+
+    ESP_LOGI(TAG, "Turn on LCD backlight");
+    gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT,1);
 }

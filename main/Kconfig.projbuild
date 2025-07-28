@@ -2,7 +2,7 @@ menu "Example Configuration"
 
     choice EXAMPLE_LCD_CONTROLLER
         prompt "LCD controller model"
-        default EXAMPLE_LCD_CONTROLLER_ILI9341
+        default EXAMPLE_LCD_H013A6
         help
             Select LCD controller model
 
@@ -14,6 +14,9 @@ menu "Example Configuration"
 
         config EXAMPLE_LCD_CONTROLLER_GC9107
             bool "GC9107"
+
+        config EXAMPLE_LCD_H013A6
+            bool "H013A6"   
 
         config EXAMPLE_LCD_H020A05
             bool "H020A05"    

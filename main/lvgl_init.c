@@ -19,19 +19,22 @@
 #include "driver/spi_master.h"
 
 #include "lvgl.h"
+#include "lv_demos.h"
 #include "lcd_config.h"
+
+static const char *TAG = "Lvgl_init";
 
 // LVGL library is not thread-safe, this example will call LVGL APIs from different tasks, so use a mutex to protect it
 static _lock_t lvgl_api_lock;
 
-static bool example_notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
+static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
     lv_display_t *disp = (lv_display_t *)user_ctx;
     lv_display_flush_ready(disp);
     return false;
 }
 
 /* Rotate display and touch, when rotated screen in LVGL. Called when driver parameters are updated. */
-static void example_lvgl_port_update_callback(lv_display_t *disp) {
+static void lvgl_port_update_callback(lv_display_t *disp) {
     esp_lcd_panel_handle_t panel_handle = lv_display_get_user_data(disp);
     lv_display_rotation_t rotation = lv_display_get_rotation(disp);
 
@@ -59,8 +62,8 @@ static void example_lvgl_port_update_callback(lv_display_t *disp) {
     }
 }
 
-static void example_lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map) {
-    example_lvgl_port_update_callback(disp);
+static void lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map) {
+    lvgl_port_update_callback(disp);
     esp_lcd_panel_handle_t panel_handle = lv_display_get_user_data(disp);
     int offsetx1 = area->x1;
     int offsetx2 = area->x2;
@@ -72,12 +75,12 @@ static void example_lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uin
     esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, px_map);
 }
 
-static void example_increase_lvgl_tick(void *arg) {
+static void increase_lvgl_tick(void *arg) {
     /* Tell LVGL how many milliseconds has elapsed */
-    lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
+    lv_tick_inc(LVGL_TICK_PERIOD_MS);
 }
 
-static void example_lvgl_port_task(void *arg) {
+static void lvgl_port_task(void *arg) {
     ESP_LOGI(TAG, "Starting LVGL task");
     uint32_t time_till_next_ms = 0;
     uint32_t time_threshold_ms = 1000 / CONFIG_FREERTOS_HZ;
@@ -92,7 +95,8 @@ static void example_lvgl_port_task(void *arg) {
 }
 extern esp_lcd_panel_handle_t panel_handle;
 extern esp_lcd_panel_io_handle_t io_handle;
-extern void example_lvgl_demo_ui(lv_disp_t *disp);
+
+extern void example_lvgl_demo_ui();
 
 static void lvgl_demo_ui();
 
@@ -103,10 +107,10 @@ esp_err_t lvgl_init(void) {
     lv_init();
 
     // create a lvgl display
-    display = lv_display_create(EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
+    display = lv_display_create(SPI_LCD_H_RES, SPI_LCD_V_RES);
     // alloc draw buffers used by LVGL
     // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
-    size_t draw_buffer_sz = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES / 10 * sizeof(lv_color16_t);
+    size_t draw_buffer_sz = SPI_LCD_H_RES * SPI_LCD_V_RES / 10 * sizeof(lv_color16_t);
 
     void *buf1 = NULL;
     void *buf2 = NULL;
@@ -124,34 +128,39 @@ esp_err_t lvgl_init(void) {
     // set color depth
     lv_display_set_color_format(display, LV_COLOR_FORMAT_RGB565);
     // set the callback which can copy the rendered image to an area of the display
-    lv_display_set_flush_cb(display, example_lvgl_flush_cb);
+    lv_display_set_flush_cb(display, lvgl_flush_cb);
     // set display rotation
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
     // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
     const esp_timer_create_args_t lvgl_tick_timer_args = {
-        .callback = &example_increase_lvgl_tick,
+        .callback = &increase_lvgl_tick,
         .name = "lvgl_tick"
     };
     esp_timer_handle_t lvgl_tick_timer = NULL;
     ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000));
 
     ESP_LOGI(TAG, "Register io panel event callback for LVGL flush ready notification");
     const esp_lcd_panel_io_callbacks_t cbs = {
-        .on_color_trans_done = example_notify_lvgl_flush_ready,
+        .on_color_trans_done = notify_lvgl_flush_ready,
     };
     /* Register done callback */
     ESP_ERROR_CHECK(esp_lcd_panel_io_register_event_callbacks(io_handle, &cbs, display));
 
-    xTaskCreate(example_lvgl_port_task, "LVGL", 4 * 1024, NULL, 10, NULL);
+    xTaskCreate(lvgl_port_task, "LVGL", 8 * 1024, NULL, 10, NULL);
 
     ESP_LOGI(TAG, "Display LVGL Meter Widget");
     // Lock the mutex due to the LVGL APIs are not thread-safe
     _lock_acquire(&lvgl_api_lock);
-    example_lvgl_demo_ui(display);
+    example_lvgl_demo_ui();
+    // lvgl_demo_ui();
     _lock_release(&lvgl_api_lock);
 
     return ESP_OK;
+}
+
+static void lvgl_demo_ui(){
+    lv_demo_benchmark();
 }
 

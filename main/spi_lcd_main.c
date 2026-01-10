@@ -27,6 +27,8 @@
 #include "lvgl.h"
 #include "lcd_config.h"
 
+static const char *TAG = "Main";
+
 esp_lcd_panel_handle_t panel_handle = NULL;
 esp_lcd_panel_io_handle_t io_handle = NULL;
 
@@ -39,7 +41,7 @@ static esp_err_t spi_lcd_init(void) {
         .miso_io_num = PIN_NUM_MISO,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = EXAMPLE_LCD_H_RES * 80 * sizeof(uint16_t),
+        .max_transfer_sz = SPI_LCD_H_RES * 80 * sizeof(uint16_t),
     };
     ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &buscfg, SPI_DMA_CH_AUTO));
 
@@ -48,9 +50,9 @@ static esp_err_t spi_lcd_init(void) {
     esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = PIN_NUM_LCD_DC,
         .cs_gpio_num = PIN_NUM_LCD_CS,
-        .pclk_hz = EXAMPLE_LCD_PIXEL_CLOCK_HZ,
-        .lcd_cmd_bits = EXAMPLE_LCD_CMD_BITS,
-        .lcd_param_bits = EXAMPLE_LCD_PARAM_BITS,
+        .pclk_hz = LCD_PIXEL_CLOCK_HZ,
+        .lcd_cmd_bits = SPI_LCD_CMD_BITS,
+        .lcd_param_bits = SPI_LCD_PARAM_BITS,
         .spi_mode = 0,
         .trans_queue_depth = 10,
     };
@@ -62,22 +64,8 @@ static esp_err_t spi_lcd_init(void) {
         .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
         .bits_per_pixel = 16,
     };
-#if CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
-    ESP_LOGI(TAG, "Install GC9A01 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_gc9a01(io_handle, &panel_config, &panel_handle));
-#elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
-    ESP_LOGI(TAG, "Install GC9107 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_gc9107(io_handle, &panel_config, &panel_handle));
-#elif CONFIG_EXAMPLE_LCD_H013A6
-    ESP_LOGI(TAG, "Install H013A6 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_h013a6(io_handle, &panel_config, &panel_handle));
-#elif CONFIG_EXAMPLE_LCD_H020A05
-    ESP_LOGI(TAG, "Install H020A05 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_h020a05(io_handle, &panel_config, &panel_handle));
-#elif CONFIG_EXAMPLE_LCD_H032A05
-    ESP_LOGI(TAG, "Install H032A05 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_h032a05(io_handle, &panel_config, &panel_handle));
-#endif
+    ESP_ERROR_CHECK(esp_lcd_new_panel_spi(io_handle, &panel_config, &panel_handle));
+
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
 #if CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
@@ -104,6 +92,7 @@ void app_main(void) {
     ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
     ESP_ERROR_CHECK(gpio_set_level(PIN_NUM_BACKLIGHT, 0));
 #endif
+
     ESP_ERROR_CHECK(spi_lcd_init());
     ESP_ERROR_CHECK(lvgl_init());
 

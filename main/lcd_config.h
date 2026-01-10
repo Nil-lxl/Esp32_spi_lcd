@@ -2,23 +2,19 @@
 #define _LCD_DEFINES_H_
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
+#include "spi_lcd.h"
 
-#if CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
-#include "esp_lcd_gc9a01.h"
-#elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
-#include "esp_lcd_gc9107.h"
-#elif CONFIG_EXAMPLE_LCD_H020A05
-#include "lcd_h020a05.h"
-#elif CONFIG_EXAMPLE_LCD_H032A05
-#include "lcd_h032a05.h"
-#elif CONFIG_EXAMPLE_LCD_H013A6
-#include "lcd_h013a6.h"
-#endif
-
-static const char *TAG = "example";
+#define SPI_LCD_USE_H010A11         0
+#define SPI_LCD_USE_H011A1          1
+#define SPI_LCD_USE_H013A6          0
+#define SPI_LCD_USE_H015A06         0
+#define SPI_LCD_USE_H020A05         0
+#define SPI_LCD_USE_H027A02         0
+#define SPI_LCD_USE_H028A27         0
+#define SPI_LCD_USE_H032A05         0
 
 // Using SPI2 in the example
 #define LCD_HOST  SPI2_HOST
@@ -26,47 +22,59 @@ static const char *TAG = "example";
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// Please update the following configuration according to your LCD spec //////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define EXAMPLE_LCD_PIXEL_CLOCK_HZ     (20 * 1000 * 1000)
-#define EXAMPLE_LCD_BK_LIGHT_ON_LEVEL  1
-#define EXAMPLE_LCD_BK_LIGHT_OFF_LEVEL !EXAMPLE_LCD_BK_LIGHT_ON_LEVEL
-#define PIN_NUM_SCLK           6
-#define PIN_NUM_MOSI           7
-#define PIN_NUM_MISO           -1
-#define PIN_NUM_LCD_DC         8
-#define PIN_NUM_LCD_RST        9
-#define PIN_NUM_LCD_CS         10
-#define PIN_NUM_BACKLIGHT       -1
-// #define PIN_NUM_TOUCH_CS       15
+#define LCD_PIXEL_CLOCK_HZ          (10 * 1000 * 1000)
+#define LCD_BK_LIGHT_ON_LEVEL       1
+#define LCD_BK_LIGHT_OFF_LEVEL      !LCD_BK_LIGHT_ON_LEVEL
+#define PIN_NUM_SCLK                6
+#define PIN_NUM_MOSI                7
+#define PIN_NUM_MISO                -1
+#define PIN_NUM_LCD_DC              15
+#define PIN_NUM_LCD_RST             5
+#define PIN_NUM_LCD_CS               4
+#define PIN_NUM_BACKLIGHT           -1
 
 // The pixel number in horizontal and vertical
-#if CONFIG_EXAMPLE_LCD_CONTROLLER_ILI9341
-#define EXAMPLE_LCD_H_RES              240
-#define EXAMPLE_LCD_V_RES              320
-#elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
-#define EXAMPLE_LCD_H_RES              240
-#define EXAMPLE_LCD_V_RES              240
-#elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
-#define EXAMPLE_LCD_H_RES              128
-#define EXAMPLE_LCD_V_RES              128
-#elif CONFIG_EXAMPLE_LCD_H013A6
-#define EXAMPLE_LCD_H_RES              240
-#define EXAMPLE_LCD_V_RES              240
-#elif CONFIG_EXAMPLE_LCD_H020A05
-#define EXAMPLE_LCD_H_RES              170
-#define EXAMPLE_LCD_V_RES              320
-#elif CONFIG_EXAMPLE_LCD_H032A05
-#define EXAMPLE_LCD_H_RES              240
-#define EXAMPLE_LCD_V_RES              320
+#if SPI_LCD_USE_H010A11
+#define SPI_LCD_H_RES               80
+#define SPI_LCD_V_RES               160
+
+#elif SPI_LCD_USE_H011A1
+#define SPI_LCD_H_RES               135
+#define SPI_LCD_V_RES               240
+
+#elif SPI_LCD_USE_H013A6
+#define SPI_LCD_H_RES               240
+#define SPI_LCD_V_RES               240
+
+#elif SPI_LCD_USE_H015A06
+#define SPI_LCD_H_RES               170
+#define SPI_LCD_V_RES               320
+
+#elif SPI_LCD_USE_H020A05
+#define SPI_LCD_H_RES               170
+#define SPI_LCD_V_RES               320
+
+#elif SPI_LCD_USE_H027A02
+#define SPI_LCD_H_RES               142
+#define SPI_LCD_V_RES               428
+
+#elif SPI_LCD_USE_H028A27
+#define SPI_LCD_H_RES               200
+#define SPI_LCD_V_RES               648
+
+#elif SPI_LCD_USE_H032A05
+#define SPI_LCD_H_RES               240
+#define SPI_LCD_V_RES               320
 
 #endif
 // Bit number used to represent command and parameter
-#define EXAMPLE_LCD_CMD_BITS           8
-#define EXAMPLE_LCD_PARAM_BITS         8
+#define SPI_LCD_CMD_BITS            8
+#define SPI_LCD_PARAM_BITS          8
 
-#define EXAMPLE_LVGL_DRAW_BUF_LINES    20 // number of display lines in each draw buffer
-#define EXAMPLE_LVGL_TICK_PERIOD_MS    2
-#define EXAMPLE_LVGL_TASK_MAX_DELAY_MS 500
-#define EXAMPLE_LVGL_TASK_MIN_DELAY_MS 1
+#define LVGL_DRAW_BUF_LINES         20 // number of display lines in each draw buffer
+#define LVGL_TICK_PERIOD_MS         2
+#define LVGL_TASK_MAX_DELAY_MS      500
+#define LVGL_TASK_MIN_DELAY_MS      1
 
 #ifdef __cplusplus
 }

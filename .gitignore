@@ -6,3 +6,4 @@
 /sdkconfig.defaults
 /.devcontainer/
 .idea
+.clangd

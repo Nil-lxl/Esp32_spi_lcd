@@ -19,52 +19,50 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "lvgl.h"
-#include "lcd_defines.h"
+#include "lcd_config.h"
 
+const char *TAG = "MAIN";
 
 // LVGL library is not thread-safe, this example will call LVGL APIs from different tasks, so use a mutex to protect it
 static _lock_t lvgl_api_lock;
 
 extern void example_lvgl_demo_ui(lv_disp_t *disp);
 
-static bool example_notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
-{
+static bool example_notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
     lv_disp_drv_t *disp_drv = (lv_disp_drv_t *)user_ctx;
     lv_disp_flush_ready(disp_drv);
     return false;
 }
 
 /* Rotate display and touch, when rotated screen in LVGL. Called when driver parameters are updated. */
-static void example_lvgl_port_update_callback(lv_disp_drv_t *disp_drv)
-{
+static void example_lvgl_port_update_callback(lv_disp_drv_t *disp_drv) {
     esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t)disp_drv->user_data;
 
     switch (disp_drv->rotated) {
-    case LV_DISP_ROT_NONE:
-        // Rotate LCD display
-        esp_lcd_panel_swap_xy(panel_handle, false);
-        esp_lcd_panel_mirror(panel_handle, true, false);
-        break;
-    case LV_DISP_ROT_90:
-        // Rotate LCD display
-        esp_lcd_panel_swap_xy(panel_handle, true);
-        esp_lcd_panel_mirror(panel_handle, true, true);
-        break;
-    case LV_DISP_ROT_180:
-        // Rotate LCD display
-        esp_lcd_panel_swap_xy(panel_handle, false);
-        esp_lcd_panel_mirror(panel_handle, true, true);
-        break;
-    case LV_DISP_ROT_270:
-        // Rotate LCD display
-        esp_lcd_panel_swap_xy(panel_handle, true);
-        esp_lcd_panel_mirror(panel_handle, false, false);
-        break;
+        case LV_DISP_ROT_NONE:
+            // Rotate LCD display
+            esp_lcd_panel_swap_xy(panel_handle, false);
+            esp_lcd_panel_mirror(panel_handle, true, false);
+            break;
+        case LV_DISP_ROT_90:
+            // Rotate LCD display
+            esp_lcd_panel_swap_xy(panel_handle, true);
+            esp_lcd_panel_mirror(panel_handle, true, true);
+            break;
+        case LV_DISP_ROT_180:
+            // Rotate LCD display
+            esp_lcd_panel_swap_xy(panel_handle, false);
+            esp_lcd_panel_mirror(panel_handle, true, true);
+            break;
+        case LV_DISP_ROT_270:
+            // Rotate LCD display
+            esp_lcd_panel_swap_xy(panel_handle, true);
+            esp_lcd_panel_mirror(panel_handle, false, false);
+            break;
     }
 }
 
-static void example_lvgl_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *px_map)
-{
+static void example_lvgl_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *px_map) {
     // example_lvgl_port_update_callback(disp_drv);
     esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t)disp_drv->user_data;
     int offsetx1 = area->x1;
@@ -75,73 +73,69 @@ static void example_lvgl_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area
     esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, px_map);
 }
 
-static void example_increase_lvgl_tick(void *arg)
-{
+static void example_increase_lvgl_tick(void *arg) {
     /* Tell LVGL how many milliseconds has elapsed */
-    lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
+    lv_tick_inc(LVGL_TICK_PERIOD_MS);
 }
 
-void app_main(void)
-{
-    // ESP_LOGI(TAG, "Turn off LCD backlight");
-    // gpio_config_t bk_gpio_config = {
-    //     .mode = GPIO_MODE_OUTPUT,
-    //     .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT
-    // };
-    // ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
+void backlight_enable(void) {
+    gpio_config_t backlight_io = {
+        .pin_bit_mask = (1ULL << PIN_NUM_BACKLIGHT),
+        .mode = GPIO_MODE_INPUT_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
 
+    };
+    ESP_ERROR_CHECK(gpio_config(&backlight_io));
+    gpio_set_level(PIN_NUM_BACKLIGHT, 1);
+}
+
+void app_main(void) {
     lv_disp_draw_buf_t draw_buf;
     lv_disp_drv_t disp_drv;
 
     ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t buscfg = {
-        .sclk_io_num = EXAMPLE_PIN_NUM_SCLK,
-        .mosi_io_num = EXAMPLE_PIN_NUM_MOSI,
-        .miso_io_num = EXAMPLE_PIN_NUM_MISO,
+        .sclk_io_num = PIN_NUM_SCLK,
+        .mosi_io_num = PIN_NUM_MOSI,
+        .miso_io_num = PIN_NUM_MISO,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = EXAMPLE_LCD_H_RES * 80 * sizeof(uint16_t),
+        .max_transfer_sz = SPI_LCD_H_RES * 80 * sizeof(uint16_t),
     };
-    ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &buscfg, SPI_DMA_CH_AUTO));    
+    ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &buscfg, SPI_DMA_CH_AUTO));
 
     ESP_LOGI(TAG, "Install panel IO");
     esp_lcd_panel_io_handle_t io_handle = NULL;
     esp_lcd_panel_io_spi_config_t io_config = {
-        .dc_gpio_num = EXAMPLE_PIN_NUM_LCD_DC,
-        .cs_gpio_num = EXAMPLE_PIN_NUM_LCD_CS,
-        .pclk_hz = EXAMPLE_LCD_PIXEL_CLOCK_HZ,
-        .lcd_cmd_bits = EXAMPLE_LCD_CMD_BITS,
-        .lcd_param_bits = EXAMPLE_LCD_PARAM_BITS,
+        .dc_gpio_num = PIN_NUM_LCD_DC,
+        .cs_gpio_num = PIN_NUM_LCD_CS,
+        .pclk_hz = LCD_PIXEL_CLOCK_HZ,
+        .lcd_cmd_bits = SPI_LCD_CMD_BITS,
+        .lcd_param_bits = SPI_LCD_PARAM_BITS,
         .spi_mode = 0,
         .trans_queue_depth = 10,
         .on_color_trans_done = example_notify_lvgl_flush_ready,
-        .user_ctx=&disp_drv,
+        .user_ctx = &disp_drv,
     };
     // Attach the LCD to the SPI bus
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_HOST, &io_config, &io_handle));
 
     esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
-        .reset_gpio_num = EXAMPLE_PIN_NUM_LCD_RST,
+        .reset_gpio_num = PIN_NUM_LCD_RST,
         .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,
         .bits_per_pixel = 16,
     };
-#if CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
-    ESP_LOGI(TAG, "Install GC9A01 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_gc9a01(io_handle, &panel_config, &panel_handle));
-#elif CONFIG_EXAMPLE_LCD_CONTROLLER_GC9107
-    ESP_LOGI(TAG, "Install GC9107 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_gc9107(io_handle, &panel_config, &panel_handle));
-#elif CONFIG_EXAMPLE_LCD_H020A05
-    ESP_LOGI(TAG, "Install H020A05 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_h020a05(io_handle, &panel_config, &panel_handle));
-#endif
+
+    ESP_ERROR_CHECK(esp_lcd_new_panel_spi(io_handle, &panel_config, &panel_handle));
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
-#if CONFIG_EXAMPLE_LCD_CONTROLLER_GC9A01
-    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
-#endif
+
+    // ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
+
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
 
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
@@ -150,30 +144,34 @@ void app_main(void)
     /********************************************************
      *                  LVGL INITIALIZATION
      ********************************************************/
-    
+
     ESP_LOGI(TAG, "Initialize LVGL library");
     lv_init();
 
     // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
-    size_t draw_buffer_sz = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES/10 * sizeof(lv_color16_t);
+    size_t draw_buffer_sz = SPI_LCD_H_RES * SPI_LCD_V_RES / 10 * sizeof(lv_color16_t);
 
-    void *buf1 = heap_caps_malloc(draw_buffer_sz,MALLOC_CAP_SPIRAM);
-    // void *buf1=spi_bus_dma_memory_alloc(LCD_HOST, draw_buffer_sz, 0);
+    /* with psram */
+    // void *buf1 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_SPIRAM);
+    // void *buf2 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_SPIRAM);
+
+    /* without psram*/
+    void *buf1 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_32BIT);
+    void *buf2 = heap_caps_malloc(draw_buffer_sz, MALLOC_CAP_32BIT);
+
     assert(buf1);
-    void *buf2 = heap_caps_malloc(draw_buffer_sz,MALLOC_CAP_SPIRAM);
-    // void *buf2=spi_bus_dma_memory_alloc(LCD_HOST, draw_buffer_sz, 0);
     assert(buf2);
-    lv_disp_draw_buf_init(&draw_buf,buf1,buf2,EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES/10);
+    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, SPI_LCD_H_RES * SPI_LCD_V_RES / 10);
 
     lv_disp_drv_init(&disp_drv);
-    disp_drv.hor_res=EXAMPLE_LCD_H_RES;
-    disp_drv.ver_res=EXAMPLE_LCD_V_RES;
-    disp_drv.flush_cb=example_lvgl_flush_cb;
-    disp_drv.draw_buf=&draw_buf;
-    disp_drv.user_data=panel_handle;
-    disp_drv.full_refresh=1;
+    disp_drv.hor_res = SPI_LCD_H_RES;
+    disp_drv.ver_res = SPI_LCD_V_RES;
+    disp_drv.flush_cb = example_lvgl_flush_cb;
+    disp_drv.draw_buf = &draw_buf;
+    disp_drv.user_data = panel_handle;
+    // disp_drv.full_refresh = 1;
 
-    lv_disp_t *disp=lv_disp_drv_register(&disp_drv);
+    lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
     // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
@@ -183,7 +181,7 @@ void app_main(void)
     };
     esp_timer_handle_t lvgl_tick_timer = NULL;
     ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000));
 
     ESP_LOGI(TAG, "Register io panel event callback for LVGL flush ready notification");
 
@@ -192,8 +190,13 @@ void app_main(void)
     _lock_acquire(&lvgl_api_lock);
     example_lvgl_demo_ui(disp);
     _lock_release(&lvgl_api_lock);
-    
-    while(1){
+
+#ifdef PIN_NUM_BACKLIGHT
+    ESP_LOGI(TAG, "Turn off LCD backlight");
+    backlight_enable();
+#endif
+
+    while (1) {
         vTaskDelay(pdMS_TO_TICKS(10));
         lv_timer_handler();
     }
